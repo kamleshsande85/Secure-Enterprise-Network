@@ -342,18 +342,6 @@ Notes:
 
 ---
 
-## 🏆 LinkedIn Post (ready)
-> **"🔐 Project 3: Secure Enterprise Network Completed!**  
->  
-> **✅ Layer 2 Security:** Port Security, DHCP Snooping  
-> **✅ Layer 3 Security:** Extended ACLs  
-> **✅ Management Security:** SSH, SNMPv3, NTP, Syslog  
-> **✅ Infrastructure Security:** BPDU Guard, Storm Control  
->  
-> **🔐 Defense-in-Depth strategy implemented!**  
->  
-> **#Cybersecurity #NetworkSecurity #CCNA #GNS3 #Cisco #Security"**
-
 ---
 
 ## 📂 GitHub Repository Structure
