@@ -3,7 +3,7 @@
 # 📁 Project 3: Secure Enterprise Network
 
 ## 📌 Project Overview
-This project focuses on implementing a **defense-in-depth security architecture** for an enterprise network. Security controls are applied at **Layer 2 (switching)**, **Layer 3 (routing)**, and **management/infrastructure** layers to provide layered protections and operational visibility.
+This project focuses on implementing a **defense-in-depth security architecture** for an enterprise network. Security controls are applied at **Layer 2 (switching)**, **Layer 3 (routing)**, and **m[...]
 
 ## 🎯 Objectives
 - **Layer 2 Security:** Port Security, DHCP Snooping, Dynamic ARP Inspection (DAI)  
@@ -29,6 +29,7 @@ This project focuses on implementing a **defense-in-depth security architecture*
 Figure 1 shows the secure enterprise topology used during the lab (core router(s), distribution switches, access switches, VLANs and security controls).
 
 ![Figure 1 — Secure Enterprise Network Topology](Screenshots/Topology-Network/network-topology-main.png)
+
 *Figure 1 — Secure Enterprise Network (Core Router, Distribution Switch, Access Switches, VLANs 10/20/30, HSRP on core switches).* 
 
 ---
@@ -271,7 +272,7 @@ write memory
 
 - End Hosts
   - ip dhcp — DHCP request (IP assigned)
-  - ping 172.16.0.1 — Gateway reachable (!!!!!)
+  - ping 172.16.0.12 — Gateway reachable (!!!!!)
 
 ---
 
@@ -312,11 +313,11 @@ Figure 9 — Interface Trunk & VLAN Forwarding (CORE-SW1)
 Command: show interface trunk
 
 Figure 10 — End-to-End Ping Test (example)  
-(Use a representative ping screenshot if available under Screenshots/ACCESS-SW1 or End Device folders; if not present, capture and add ping output to Screenshots/End Device.)  
-Command: ping 172.16.0.1
+![Figure 10 — End-to-End Ping Test](Screenshots/End Device/3. Remote PC  Core IP Connectivity Check.png)  
+Command: ping 172.16.0.12
 
 Notes:
-- I embedded the screenshots that are currently present under Screenshots/* directories. If you want additional screenshots (e.g., explicit SNMPv3 show commands), capture the relevant output and add it to Screenshots/, then reference it here.
+- I embedded the screenshots that are currently present under Screenshots/* directories. If you want additional screenshots (e.g., explicit SNMPv3 show commands), capture the relevant output and [...]
 - Captions show the verification command so readers know which CLI output corresponds to each figure.
 
 ---
@@ -386,3 +387,4 @@ Project3-Secure-Enterprise/
 ```
 
 ---
+
