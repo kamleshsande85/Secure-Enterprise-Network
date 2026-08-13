@@ -28,8 +28,7 @@ This project focuses on implementing a **defense-in-depth security architecture*
 
 Figure 1 shows the secure enterprise topology used during the lab (core router(s), distribution switches, access switches, VLANs and security controls).
 
-![Figure 1 — Secure Enterprise Network Topology](Screenshots/Topology-Network/network-topology-v4.png)
-
+![Figure 1 — Secure Enterprise Network Topology](Screenshots/Topology-Network/network-topology-main.png)
 *Figure 1 — Secure Enterprise Network (Core Router, Distribution Switch, Access Switches, VLANs 10/20/30, HSRP on core switches).* 
 
 ---
