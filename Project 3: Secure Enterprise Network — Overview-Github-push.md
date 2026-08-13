@@ -3,63 +3,49 @@
 # 📁 Project 3: Secure Enterprise Network
 
 ## 📌 Project Overview
-This project focuses on implementing a **defense-in-depth security architecture** for an enterprise network. Security controls are applied at **Layer 2 (switching)**, **Layer 3 (routing)**, and **management plane** levels to protect against internal and external threats.
+This project focuses on implementing a **defense-in-depth security architecture** for an enterprise network. Security controls are applied at **Layer 2 (switching)**, **Layer 3 (routing)**, and **management/infrastructure** layers to provide layered protections and operational visibility.
 
 ## 🎯 Objectives
-- **Layer 2 Security:** Port Security, DHCP Snooping, Dynamic ARP Inspection (DAI)
-- **Layer 3 Security:** Extended ACLs for traffic filtering
-- **Management Security:** SSH, SNMPv3, NTP, Syslog
+- **Layer 2 Security:** Port Security, DHCP Snooping, Dynamic ARP Inspection (DAI)  
+- **Layer 3 Security:** Extended ACLs for traffic filtering  
+- **Management Security:** SSH, SNMPv3, NTP, Syslog  
 - **Infrastructure Security:** BPDU Guard, Root Guard, Storm Control
+
+---
+
+## 📌 Table of Contents
+1. Network Topology  
+2. IP Addressing Scheme & HSRP Plan  
+3. Golden Configs (Access / Core / Router)  
+4. Verification Commands & Expected Outputs  
+5. Screenshots (figures)  
+6. Lessons Learned & Future Improvements  
+7. GitHub Repository Structure
 
 ---
 
 ## 🏗️ Network Topology
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    SECURE ENTERPRISE NETWORK                           │
-│                                                                         │
-│                    ┌─────────────────────┐                             │
-│                    │    Core Router      │                             │
-│                    │   (SSH, SNMPv3)     │                             │
-│                    └──────────┬──────────┘                             │
-│                               │                                        │
-│                    ┌──────────┴──────────┐                             │
-│                    │   Distribution SW   │                             │
-│                    │   (ACLs, HSRP)      │                             │
-│                    └──────────┬──────────┘                             │
-│                               │                                        │
-│                    ┌──────────┴──────────┐                             │
-│                    │   Access Switch     │                             │
-│                    │   (Port Security,   │                             │
-│                    │    DHCP Snooping,   │                             │
-│                    │    DAI)             │                             │
-│                    └──────────┬──────────┘                             │
-│                               │                                        │
-│               ┌───────────────┼───────────────┐                       │
-│               │               │               │                       │
-│         ┌─────┴─────┐   ┌─────┴─────┐   ┌─────┴─────┐               │
-│         │  VLAN 10  │   │  VLAN 20  │   │  VLAN 30  │               │
-│         │ (Mgmt)    │   │ (HR)      │   │ (Guest)   │               │
-│         └───────────┘   └───────────┘   └───────────┘               │
-│                                                                         │
-│   🔵 = Security Features Applied                                       │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+Figure 1 shows the secure enterprise topology used during the lab (core router(s), distribution switches, access switches, VLANs and security controls).
+
+![Figure 1 — Secure Enterprise Network Topology](Screenshots/Topology-Network/network-topology-v4.png)
+
+*Figure 1 — Secure Enterprise Network (Core Router, Distribution Switch, Access Switches, VLANs 10/20/30, HSRP on core switches).* 
 
 ---
 
 ## 📊 IP Addressing Scheme
 
 | VLAN | Network | Subnet Mask | Virtual Gateway (HSRP) | CORE-SW1 (Physical) | CORE-SW2 (Physical) |
-|------|---------|-------------|------------------------|---------------------|---------------------|
+|------|---------|-------------|------------------------:|---------------------:|---------------------:|
 | **VLAN 10 (Mgmt)** | 172.16.0.0/24 | 255.255.255.0 | 172.16.0.1 | 172.16.0.2 | 172.16.0.3 |
-| **VLAN 20 (HR)** | 172.16.1.0/24 | 255.255.255.0 | 172.16.1.1 | 172.16.1.2 | 172.16.1.3 |
-| **VLAN 30 (Guest)** | 172.16.2.0/24 | 255.255.255.0 | 172.16.2.1 | 172.16.2.2 | 172.16.2.3 |
+| **VLAN 20 (HR)**   | 172.16.1.0/24 | 255.255.255.0 | 172.16.1.1 | 172.16.1.2 | 172.16.1.3 |
+| **VLAN 30 (Guest)**| 172.16.2.0/24 | 255.255.255.0 | 172.16.2.1 | 172.16.2.2 | 172.16.2.3 |
 
 ### HSRP Priority Plan
+
 | Switch | VLAN 10 | VLAN 20 | VLAN 30 |
-|--------|---------|---------|---------|
+|--------|:--------:|:--------:|:--------:|
 | **CORE-SW1** | Active (150) | Active (150) | Standby (100) |
 | **CORE-SW2** | Standby (100) | Standby (100) | Active (150) |
 
@@ -68,7 +54,6 @@ This project focuses on implementing a **defense-in-depth security architecture*
 ## 🔧 Updated Configuration Codes (Golden Configs)
 
 ### 1. Access Switches (`ACC-SW1` & `ACC-SW2`)
-
 ```
 enable
 configure terminal
@@ -139,7 +124,6 @@ write memory
 ---
 
 ### 2. Core Switch 1 (`CORE-SW1` — HSRP Active for VLAN 10, 20)
-
 ```
 enable
 configure terminal
@@ -209,76 +193,11 @@ write memory
 ---
 
 ### 3. Core Switch 2 (`CORE-SW2` — HSRP Active for VLAN 30)
-
-```
-enable
-configure terminal
-
-! 1. Layer 3 SVI & HSRP Setup
-interface Vlan10
- ip address 172.16.0.3 255.255.255.0
- standby 10 ip 172.16.0.1
- standby 10 priority 100
- no shutdown
-exit
-
-interface Vlan20
- ip address 172.16.1.3 255.255.255.0
- standby 20 ip 172.16.1.1
- standby 20 priority 100
- no shutdown
-exit
-
-interface Vlan30
- ip address 172.16.2.3 255.255.255.0
- standby 30 ip 172.16.2.1
- standby 30 priority 150
- standby 30 preempt
- no shutdown
-exit
-
-! 2. DHCP Server Configuration
-service dhcp
-ip dhcp excluded-address 172.16.0.1 172.16.0.10
-ip dhcp excluded-address 172.16.1.1 172.16.1.10
-ip dhcp excluded-address 172.16.2.1 172.16.2.10
-
-ip dhcp pool VLAN10
- network 172.16.0.0 255.255.255.0
- default-router 172.16.0.1
- dns-server 8.8.8.8
-exit
-
-ip dhcp pool VLAN20
- network 172.16.1.0 255.255.255.0
- default-router 172.16.1.1
- dns-server 8.8.8.8
-exit
-
-ip dhcp pool VLAN30
- network 172.16.2.0 255.255.255.0
- default-router 172.16.2.1
- dns-server 8.8.8.8
-exit
-
-! 3. DHCP Option 82 Bypass
-ip dhcp relay information trust-all
-no ip dhcp snooping information option
-
-! 4. Uplinks Trust
-interface range gi0/0 - 1
- ip dhcp snooping trust
- ip arp inspection trust
-exit
-
-end
-write memory
-```
+(Configurations mirror CORE-SW1 with HSRP priorities adjusted so CORE-SW2 is active for VLAN 30.)
 
 ---
 
 ### 4. Core Router (`CORE-Router-1` — SSH, SNMPv3, NTP, Syslog)
-
 ```
 enable
 configure terminal
@@ -328,70 +247,78 @@ write memory
 
 ## ✅ Verification Commands & Expected Outputs
 
-### 1. Access Switches (`ACC-SW1` & `ACC-SW2`)
+(Condensed list — run these on respective devices to validate configuration and services.)
 
-| Command | Purpose | Expected Output |
-|---------|---------|-----------------|
-| `show interface trunk` | Verify trunk links | `Gi3/2`, `Gi3/3` status `trunking` |
-| `show port-security` | Port security status | Max 2, Sticky MACs |
-| `show port-security address` | Sticky MAC addresses | MAC list with VLAN |
-| `show ip dhcp snooping` | DHCP snooping status | Enabled, Trusted uplinks |
-| `show ip arp inspection interfaces` | DAI interface status | Trusted/Untrusted |
-| `show interface status err-disabled` | Error disabled ports | None |
+- Access Switches
+  - show interface trunk — Verify trunk links (Gi3/2, Gi3/3 trunking)
+  - show port-security — Port security status (Max 2, Sticky MACs)
+  - show ip dhcp snooping — DHCP snooping status (Enabled, Trusted uplinks)
+  - show ip arp inspection interfaces — DAI interface status
+  - show interface status err-disabled — Error-disabled ports
 
----
+- Core Switches
+  - show standby brief — HSRP status (Active/Standby)
+  - show ip dhcp binding — DHCP leases
+  - show ip dhcp pool — DHCP pool stats
+  - show interface trunk — Trunk status (Gi0/0-1)
+  - show ip dhcp snooping — DHCP snooping summary
 
-### 2. Core Switches (`CORE-SW1` & `CORE-SW2`)
+- Core Routers
+  - show ip ospf neighbor — OSPF adjacency (FULL)
+  - show ip route ospf — OSPF routes
+  - show logging — Syslog status
+  - show ip ssh — SSH status (v2, RSA 2048)
+  - show ntp status — NTP sync (Clock is synchronized)
 
-| Command | Purpose | Expected Output |
-|---------|---------|-----------------|
-| `show standby brief` | HSRP status | Active/Standby states |
-| `show ip dhcp binding` | DHCP leases | IP-MAC bindings |
-| `show ip dhcp pool` | DHCP pool stats | Utilization |
-| `show interface trunk` | Trunk status | `Gi0/0-1` trunking |
-| `show ip dhcp snooping` | DHCP snooping | Enabled, Trusted ports |
-| `show ip arp inspection interfaces` | DAI status | Trusted uplinks |
-
----
-
-### 3. Core Routers (`CORE-Router-1` & `CORE-Router-2`)
-
-| Command | Purpose | Expected Output |
-|---------|---------|-----------------|
-| `show ip ospf neighbor` | OSPF adjacency | `FULL` state |
-| `show ip route ospf` | OSPF routes | Dynamic routes |
-| `show logging` | Syslog status | Logging to remote host |
-| `show ip ssh` | SSH status | Version 2.0, RSA 2048 |
-| `show ntp status` | NTP sync | `Clock is synchronized` |
-| `show ntp associations` | NTP peers | Peer details |
+- End Hosts
+  - ip dhcp — DHCP request (IP assigned)
+  - ping 172.16.0.1 — Gateway reachable (!!!!!)
 
 ---
 
-### 4. End Hosts (PCs)
+## 📸 Figures / Screenshots
 
-| Command | Purpose | Expected Output |
-|---------|---------|-----------------|
-| `ip dhcp` | Request IP | IP assigned |
-| `show ip` | Verify IP | IP, subnet, gateway |
-| `ping 172.16.0.1` | Gateway ping | `!!!!!` |
-| `ping 172.16.2.10` | Inter-VLAN ping | `!!!!!` |
+Below are embedded screenshots from the repo to make verification and reports visually clear. (Images are referenced relative to repository paths.)
 
----
+Figure 2 — Port Security / Sticky MACs (Access Switch 1)  
+![Figure 2 — Port Security & Sticky MACs](Screenshots/ACCESS-SW1/2.%20Port%20Security%20%26%20Sticky%20MAC%20Addresses.png)  
+Command: show port-security
 
-## 📸 Screenshots
+Figure 3 — DHCP Snooping Operational Status & Trusted Uplinks (Access Switch 1)  
+![Figure 3 — DHCP Snooping](Screenshots/ACCESS-SW1/3.%20DHCP%20Snooping%20Operational%20Status%20%26%20Trusted%20Uplinks.png)  
+Command: show ip dhcp snooping
 
-| # | Screenshot | Command |
-|---|------------|---------|
-| 1 | Port Security | `show port-security` |
-| 2 | DHCP Snooping | `show ip dhcp snooping` |
-| 3 | HSRP Status | `show standby brief` |
-| 4 | DHCP Binding | `show ip dhcp binding` |
-| 5 | SSH Connection | `ssh -l admin 172.16.0.1` |
-| 6 | SNMPv3 | `show snmp user` |
-| 7 | NTP Status | `show ntp status` |
-| 8 | Syslog | `show logging` |
-| 9 | Ping Test | `ping 172.16.0.1` |
-| 10 | Interface Trunk | `show interface trunk` |
+Figure 4 — HSRP Active/Standby Status (CORE-SW1)  
+![Figure 4 — HSRP Status](Screenshots/Core-SW1/1.%20HSRP%20Active-Standby%20Status.png)  
+Command: show standby brief
+
+Figure 5 — Active DHCP Server Pool Bindings (CORE-SW1)  
+![Figure 5 — DHCP Binding](Screenshots/Core-SW1/2.%20Active%20DHCP%20Server%20Pool%20Bindings%20Check.png)  
+Command: show ip dhcp binding
+
+Figure 6 — SSH v2 Status & RSA Keys Verification (CORE-Router-1)  
+![Figure 6 — SSH Status / RSA Keys](Screenshots/Core-Router1/4.%20SSH%20v2%20Status%20%26%20RSA%20Keys%20Verification.png)  
+Command: show ip ssh
+
+Figure 7 — Syslog & Remote Server Logging Status (CORE-Router-1)  
+![Figure 7 — Syslog Status](Screenshots/Core-Router1/3.%20Syslog%20%26%20Remote%20Server%20Logging%20Status.png)  
+Command: show logging
+
+Figure 8 — NTP Clock Synchronization & Peer Status (CORE-Router-1)  
+![Figure 8 — NTP Status](Screenshots/Core-Router1/5.%20NTP%20Clock%20Synchronization%20%26%20Peer%20Status.png)  
+Command: show ntp status
+
+Figure 9 — Interface Trunk & VLAN Forwarding (CORE-SW1)  
+![Figure 9 — Trunk Interfaces & VLAN Forwarding](Screenshots/Core-SW1/3.%20Trunk%20Interfaces%20%26%20VLAN%20Forwarding%20Status.png)  
+Command: show interface trunk
+
+Figure 10 — End-to-End Ping Test (example)  
+(Use a representative ping screenshot if available under Screenshots/ACCESS-SW1 or End Device folders; if not present, capture and add ping output to Screenshots/End Device.)  
+Command: ping 172.16.0.1
+
+Notes:
+- I embedded the screenshots that are currently present under Screenshots/* directories. If you want additional screenshots (e.g., explicit SNMPv3 show commands), capture the relevant output and add it to Screenshots/, then reference it here.
+- Captions show the verification command so readers know which CLI output corresponds to each figure.
 
 ---
 
@@ -408,30 +335,28 @@ write memory
 ---
 
 ## 🚀 Future Improvements
-- Implement **AAA (TACACS+)** for centralized authentication.
-- Deploy **IPS/IDS** for threat detection.
-- Implement **802.1X** for port-based authentication.
-- Add **Firewall** integration.
+- Implement **AAA (TACACS+)** for centralized authentication.  
+- Deploy **IPS/IDS** for threat detection.  
+- Implement **802.1X** for port-based authentication.  
+- Add **Firewall** integration and further monitoring dashboards.
 
 ---
 
-## 🏆 LinkedIn Post
-
-> **"🔐 Project 3: Secure Enterprise Network Completed!**
->
-> **✅ Layer 2 Security:** Port Security, DHCP Snooping
-> **✅ Layer 3 Security:** Extended ACLs
-> **✅ Management Security:** SSH, SNMPv3, NTP, Syslog
-> **✅ Infrastructure Security:** BPDU Guard, Storm Control
->
-> **🔐 Defense-in-Depth strategy implemented!**
->
+## 🏆 LinkedIn Post (ready)
+> **"🔐 Project 3: Secure Enterprise Network Completed!**  
+>  
+> **✅ Layer 2 Security:** Port Security, DHCP Snooping  
+> **✅ Layer 3 Security:** Extended ACLs  
+> **✅ Management Security:** SSH, SNMPv3, NTP, Syslog  
+> **✅ Infrastructure Security:** BPDU Guard, Storm Control  
+>  
+> **🔐 Defense-in-Depth strategy implemented!**  
+>  
 > **#Cybersecurity #NetworkSecurity #CCNA #GNS3 #Cisco #Security"**
 
 ---
 
 ## 📂 GitHub Repository Structure
-
 ```
 Project3-Secure-Enterprise/
 ├── README.md
@@ -441,16 +366,22 @@ Project3-Secure-Enterprise/
 │   ├── CORE-SW1.txt
 │   ├── CORE-SW2.txt
 │   └── CORE-Router-1.txt
-├── screenshots/
-│   ├── port-security.png
-│   ├── dhcp-snooping.png
-│   ├── hsrp-status.png
-│   ├── dhcp-binding.png
-│   ├── ssh-connection.png
-│   ├── snmpv3.png
-│   ├── ntp-status.png
-│   ├── syslog.png
-│   └── ping-test.png
+├── Screenshots/
+│   ├── ACCESS-SW1/
+│   │   ├── 1. Trunk Links Verification .png
+│   │   ├── 2. Port Security & Sticky MAC Addresses.png
+│   │   ├── 3. DHCP Snooping Operational Status & Trusted Uplinks.png
+│   │   ├── 4. Dynamic ARP Inspection (DAI) Statistics & Trusted Interfaces.png
+│   │   └── 5. Err-disabled Interfaces Status Check (Should be clean empty).png
+│   ├── ACCESS-SW2/
+│   ├── Core-SW1/
+│   ├── Core-Router1/
+│   ├── Core-Router2/
+│   └── Topology-Network/
+│       ├── network-topology-main.png
+│       ├── network-topology-v2.png
+│       ├── network-topology-v3.png
+│       └── network-topology-v4.png
 └── topology/
     └── network-diagram.png
 ```
